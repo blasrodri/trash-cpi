@@ -1,6 +1,7 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { Asd } from "../target/types/asd";
+import { AsdPuppet } from "../target/types/asd_puppet";
 
 const assert = require("assert");
 
@@ -10,7 +11,8 @@ describe("asd", () => {
   // Configure the client to use the local cluster.
   anchor.setProvider(provider);
 
-  const program = anchor.workspace.Asd as Program<Asd>;
+  const programAsd = anchor.workspace.Asd as Program<Asd>;
+  const programAsdPuppet = anchor.workspace.Asd as Program<AsdPuppet>;
   const keyPair = anchor.web3.Keypair.generate();
 
 
@@ -32,18 +34,38 @@ describe("asd", () => {
   it("Is initialized!", async () => {
     const [storedData, _] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from("data")],
-      program.programId
+      programAsd.programId
 
     );
     // Add your test here.
-    const tx = await program.rpc.initialize({accounts: {
+    const tx = await programAsd.rpc.initialize({accounts: {
       storedData: storedData,
       signer: keyPair.publicKey,
       systemProgram: anchor.web3.SystemProgram.programId,
+      },
+      signers: [keyPair]
     },
-    signers: [keyPair]
-  },
-);
+  );
     console.log("Your transaction signature", tx);
   });
+
+  it("Set CPI data!", async () => {
+    const [dataAcc, bump] = await anchor.web3.PublicKey.findProgramAddress(
+      [Buffer.from("data")],
+      programAsd.programId
+
+    );
+    // Add your test here.
+    const tx = await programAsd.rpc.setDataCpi(bump, new anchor.BN(101),  {accounts: {
+      dataAcc: dataAcc,
+      calleeAuthority: keyPair.publicKey,
+      asdPuppet: programAsdPuppet.programId,
+      },
+      signers: [keyPair]
+    },
+  );
+    console.log("Your transaction signature", tx);
+  });
+
+
 });
