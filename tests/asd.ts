@@ -4,7 +4,7 @@ import { Asd } from "../target/types/asd";
 
 describe("asd", () => {
   // Configure the client to use the local cluster.
-  anchor.setProvider(anchor.Provider.env());
+  anchor.getProvider();
 
   const program = anchor.workspace.Asd as Program<Asd>;
 
