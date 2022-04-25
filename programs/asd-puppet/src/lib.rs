@@ -15,9 +15,8 @@ pub mod asd_puppet {
 
 #[derive(Accounts)]
 pub struct SetData<'info> {
+    #[account(mut)]
     pub data_acc: Account<'info, Data>,
-    /// CHECK: blabl
-    pub authority: UncheckedAccount<'info>,
 }
 
 #[account]

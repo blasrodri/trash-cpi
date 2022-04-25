@@ -18,10 +18,10 @@ pub mod asd {
         let asd_puppet_id = ctx.accounts.asd_puppet.to_account_info();
         let callee_accounts = asd_puppet::cpi::accounts::SetData {
             data_acc: ctx.accounts.data_acc.to_account_info(),
-            authority: ctx.accounts.callee_authority.to_account_info(),
         };
-        let cpi_ctx = CpiContext::new_with_signer(asd_puppet_id, callee_accounts, seeds);
+        let cpi_ctx = CpiContext::new_with_signer(asd_puppet_id, callee_accounts, seeds.as_ref());
         asd_puppet::cpi::set_data(cpi_ctx, data)
+        // Ok(())
     }
 }
 
@@ -52,7 +52,5 @@ pub struct SetDataCPI<'info> {
         bump,
     )]
     pub data_acc: Account<'info, Data>,
-    /// CHECK: fodakjfldsf
-    pub callee_authority: UncheckedAccount<'info>,
     pub asd_puppet: Program<'info, AsdPuppet>,
 }

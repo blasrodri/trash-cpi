@@ -56,15 +56,16 @@ describe("asd", () => {
 
     );
     // Add your test here.
-    const tx = await programAsd.rpc.setDataCpi(bump, new anchor.BN(101),  {accounts: {
+    const tx = await programAsd.methods.setDataCpi(bump, new anchor.BN(101)).accounts({
       dataAcc: dataAcc,
-      calleeAuthority: keyPair.publicKey,
+      // calleeAuthority: keyPair.publicKey,
       asdPuppet: programAsdPuppet.programId,
-      },
-      signers: [keyPair]
-    },
-  );
-    console.log("Your transaction signature", tx);
+      }).signers([]);
+    // console.log("Your transaction signature", tx);
+    console.log(programAsdPuppet.account.data);
+    // let checkACcount = await programAsdPuppet.account.data.fetch(dataAcc);
+    // assert.strictEqual(checkACcount.num,  new anchor.BN(101) );
+
   });
 
 
