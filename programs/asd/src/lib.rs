@@ -9,11 +9,13 @@ pub mod asd {
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         // craete the PDA
+        msg!("ASD");
         Ok(())
     }
 
     pub fn set_data_cpi(ctx: Context<SetDataCPI>, bump: u8, data: u64) -> Result<()> {
         // given the PDA, do the CPI with the signer
+        msg!("ASD");
         let seeds = &[&[b"data", bytemuck::bytes_of(&bump)][..]];
         let asd_puppet_id = ctx.accounts.asd_puppet.to_account_info();
         let callee_accounts = asd_puppet::cpi::accounts::SetData {
@@ -21,7 +23,6 @@ pub mod asd {
         };
         let cpi_ctx = CpiContext::new_with_signer(asd_puppet_id, callee_accounts, seeds.as_ref());
         asd_puppet::cpi::set_data(cpi_ctx, data)
-        // Ok(())
     }
 }
 
@@ -45,7 +46,6 @@ pub struct Initialize<'info> {
 #[derive(Accounts)]
 #[instruction(bump: u8, _data: u64)]
 pub struct SetDataCPI<'info> {
-
     #[account(
         mut,
         seeds = [b"data".as_ref()],
