@@ -9,13 +9,13 @@ pub mod asd {
 
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         // craete the PDA
-        msg!("ASD");
+        msg!("initialize");
         Ok(())
     }
 
     pub fn set_data_cpi(ctx: Context<SetDataCPI>, bump: u8, data: u64) -> Result<()> {
         // given the PDA, do the CPI with the signer
-        msg!("ASD");
+        msg!("set_data_cpi");
         let seeds = &[&[b"data", bytemuck::bytes_of(&bump)][..]];
         let asd_puppet_id = ctx.accounts.asd_puppet.to_account_info();
         let callee_accounts = asd_puppet::cpi::accounts::SetData {
