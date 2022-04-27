@@ -15,48 +15,40 @@ describe("asd", () => {
   const programAsdPuppet = anchor.workspace.Asd as Program<AsdPuppet>;
   const keyPair = anchor.web3.Keypair.generate();
 
-
-  it("Funds the user", async() => {
+  it("Funds the user", async () => {
     // gotta fund keyPair
     await provider.connection.confirmTransaction(
-      await provider.connection.requestAirdrop(
-        keyPair.publicKey,
-        10000000000
-      ),
+      await provider.connection.requestAirdrop(keyPair.publicKey, 10000000000),
       "confirmed"
     );
 
     const userBalance = await provider.connection.getBalance(keyPair.publicKey);
-    assert.strictEqual(10000000000, userBalance );
-
+    assert.strictEqual(10000000000, userBalance);
   });
 
   it("Is initialized!", async () => {
     const [storedData, _] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from("data")],
       programAsd.programId
-
     );
     // Add your test here.
 
-  //       const tx = await programAsd.rpc.initialize({accounts: {
-  //     storedData: storedData,
-  //     signer: keyPair.publicKey,
-  //     systemProgram: anchor.web3.SystemProgram.programId,
-  //     }, signers:
-  //       [keyPair]
-  //       });
-  //   console.log("Your transaction signature", tx);
-  // });
+    //       const tx = await programAsd.rpc.initialize({accounts: {
+    //     storedData: storedData,
+    //     signer: keyPair.publicKey,
+    //     systemProgram: anchor.web3.SystemProgram.programId,
+    //     }, signers:
+    //       [keyPair]
+    //       });
+    //   console.log("Your transaction signature", tx);
+    // });
 
-
-      const tx = await programAsd.methods.initialize().accounts({
-      storedData: storedData,
-      signer: keyPair.publicKey,
-      systemProgram: anchor.web3.SystemProgram.programId,
-      }).signers(
-        [keyPair]
-    );
+    const tx = await programAsd.methods.initialize()
+      .accounts({
+        storedData: storedData,
+        signer: keyPair.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+      }).signers([keyPair]).rpc();
     console.log("Your transaction signature", tx);
   });
 
@@ -64,26 +56,25 @@ describe("asd", () => {
     const [dataAcc, bump] = await anchor.web3.PublicKey.findProgramAddress(
       [Buffer.from("data")],
       programAsd.programId
-
     );
     // Add your test here.
-    const tx = await programAsd.rpc.setDataCpi(bump, new anchor.BN(101), {accounts: {
-      dataAcc: dataAcc,
-      // calleeAuthority: keyPair.publicKey,
-      asdPuppet: programAsdPuppet.programId,
-      }, signers:[]});
 
-  //     // const tx = await programAsd.methods.setDataCpi(bump, new anchor.BN(101)).accounts({
-  //     //   dataAcc: dataAcc,
-  //     //   // calleeAuthority: keyPair.publicKey,
-  //     //   asdPuppet: programAsdPuppet.programId,
-  //     //   }).signers([]).transaction();
-  //   // console.log("Your transaction signature", tx);
-  //   console.log(programAsdPuppet.account.data);
-  //   // let checkACcount = await programAsdPuppet.account.data.fetch(dataAcc);
-  //   // assert.strictEqual(checkACcount.num,  new anchor.BN(101) );
+    const tx = await programAsd.rpc.setDataCpi(bump, new anchor.BN(101), {
+      accounts: {
+        dataAcc: dataAcc,
+        // calleeAuthority: keyPair.publicKey,
+        asdPuppet: programAsdPuppet.programId,
+      }
+    });
 
+    //     // const tx = await programAsd.methods.setDataCpi(bump, new anchor.BN(101)).accounts({
+    //     //   dataAcc: dataAcc,
+    //     //   // calleeAuthority: keyPair.publicKey,
+    //     //   asdPuppet: programAsdPuppet.programId,
+    //     //   }).signers([]).transaction();
+    //   // console.log("Your transaction signature", tx);
+    //   console.log(programAsdPuppet.account.data);
+    //   // let checkACcount = await programAsdPuppet.account.data.fetch(dataAcc);
+    //   // assert.strictEqual(checkACcount.num,  new anchor.BN(101) );
   });
-
-
 });
