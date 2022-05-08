@@ -1,18 +1,19 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { Asd } from "../target/types/asd";
-import { AsdPuppet } from "../target/types/asd_puppet";
+// import { Asd } from "../target/types/asd";
+// import { AsdPuppet } from "../target/types/asd_puppet";
+const PublicKey = require("@solana/web3.js").PublicKey;
 
 const assert = require("assert");
 
 describe("asd", () => {
-  const provider = anchor.AnchorProvider.local();
+  const provider = anchor.AnchorProvider.env();
 
   // Configure the client to use the local cluster.
   anchor.setProvider(provider);
 
-  const programAsd = anchor.workspace.Asd as Program<Asd>;
-  const programAsdPuppet = anchor.workspace.Asd as Program<AsdPuppet>;
+  const programAsd = anchor.workspace.Asd;
+  const programAsdPuppet = anchor.workspace.AsdPuppet;
   const keyPair = anchor.web3.Keypair.generate();
 
   it("Funds the user", async () => {
@@ -27,8 +28,8 @@ describe("asd", () => {
   });
 
   it("Is initialized!", async () => {
-    const [storedData, _] = await anchor.web3.PublicKey.findProgramAddress(
-      [Buffer.from("data")],
+    const [firstPDA, firstBump] = await PublicKey.findProgramAddress(
+      [Buffer.from("data"), keyPair.publicKey.toBuffer()],
       programAsd.programId
     );
     // Add your test here.
@@ -43,38 +44,36 @@ describe("asd", () => {
     //   console.log("Your transaction signature", tx);
     // });
 
-    const tx = await programAsd.methods.initialize()
+    let tx: any;
+
+
+    tx = await programAsdPuppet.methods
+      .init(firstPDA)
       .accounts({
-        storedData: storedData,
-        signer: keyPair.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-      }).signers([keyPair]).rpc();
-    console.log("Your transaction signature", tx);
-  });
+        puppet: keyPair.publicKey,
+        user: provider.wallet.publicKey,
+      })
+      .signers([keyPair])
+      .rpc();
 
-  it("Set CPI data!", async () => {
-    const [dataAcc, bump] = await anchor.web3.PublicKey.findProgramAddress(
-      [Buffer.from("data")],
-      programAsd.programId
-    );
-    // Add your test here.
+    tx = await programAsd.methods.set(firstBump, new anchor.BN(5)).accounts({
+      storedData: keyPair.publicKey,
+      puppetProgram: programAsdPuppet.programId,
+      authority: firstPDA
+    }).rpc();
 
-    const tx = await programAsd.rpc.setDataCpi(bump, new anchor.BN(101), {
-      accounts: {
-        dataAcc: dataAcc,
-        // calleeAuthority: keyPair.publicKey,
-        asdPuppet: programAsdPuppet.programId,
-      }
-    });
+    let data = await programAsdPuppet.account.data.fetch(keyPair.publicKey);
+    console.log(data.num.toNumber());
 
-    //     // const tx = await programAsd.methods.setDataCpi(bump, new anchor.BN(101)).accounts({
-    //     //   dataAcc: dataAcc,
-    //     //   // calleeAuthority: keyPair.publicKey,
-    //     //   asdPuppet: programAsdPuppet.programId,
-    //     //   }).signers([]).transaction();
-    //   // console.log("Your transaction signature", tx);
-    //   console.log(programAsdPuppet.account.data);
-    //   // let checkACcount = await programAsdPuppet.account.data.fetch(dataAcc);
-    //   // assert.strictEqual(checkACcount.num,  new anchor.BN(101) );
+
+    // tx = await programAsdPuppet.methods
+    //   .initialize(firstPDA)
+    //   .accounts({
+    //     puppet: keyPair.publicKey,
+    //     user: provider.wallet.publicKey,
+    //   })
+    //   .signers[keyPair].rpc();
+
+    // console.log(tx);
   });
 });
