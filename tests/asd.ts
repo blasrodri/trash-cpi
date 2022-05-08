@@ -32,17 +32,6 @@ describe("asd", () => {
       [Buffer.from("data"), keyPair.publicKey.toBuffer()],
       programAsd.programId
     );
-    // Add your test here.
-
-    //       const tx = await programAsd.rpc.initialize({accounts: {
-    //     storedData: storedData,
-    //     signer: keyPair.publicKey,
-    //     systemProgram: anchor.web3.SystemProgram.programId,
-    //     }, signers:
-    //       [keyPair]
-    //       });
-    //   console.log("Your transaction signature", tx);
-    // });
 
     let tx: any;
 
@@ -63,17 +52,7 @@ describe("asd", () => {
     }).rpc();
 
     let data = await programAsdPuppet.account.data.fetch(keyPair.publicKey);
-    console.log(data.num.toNumber());
 
-
-    // tx = await programAsdPuppet.methods
-    //   .initialize(firstPDA)
-    //   .accounts({
-    //     puppet: keyPair.publicKey,
-    //     user: provider.wallet.publicKey,
-    //   })
-    //   .signers[keyPair].rpc();
-
-    // console.log(tx);
+    assert.equal(data.num.toNumber(), 5)
   });
 });
